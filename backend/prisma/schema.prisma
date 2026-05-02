@@ -1,0 +1,156 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model booking_seats {
+  id          BigInt     @id @default(autoincrement())
+  booking_id  BigInt?
+  seat_id     BigInt?
+  showtime_id BigInt?
+  bookings    bookings?  @relation(fields: [booking_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "booking_seats_ibfk_1")
+  seats       seats?     @relation(fields: [seat_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "booking_seats_ibfk_2")
+  showtimes   showtimes? @relation(fields: [showtime_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "booking_seats_ibfk_3")
+
+  @@unique([seat_id, showtime_id], map: "seat_id")
+  @@index([booking_id], map: "booking_id")
+  @@index([showtime_id], map: "showtime_id")
+}
+
+model bookings {
+  id            BigInt           @id @default(autoincrement())
+  user_id       BigInt?
+  showtime_id   BigInt?
+  total_price   Decimal?         @db.Decimal(10, 2)
+  status        bookings_status? @default(PENDING)
+  created_at    DateTime         @default(now()) @db.Timestamp(0)
+  booking_seats booking_seats[]
+  users         users?           @relation(fields: [user_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "bookings_ibfk_1")
+  showtimes     showtimes?       @relation(fields: [showtime_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "bookings_ibfk_2")
+  payments      payments[]
+
+  @@index([showtime_id], map: "showtime_id")
+  @@index([user_id], map: "user_id")
+}
+
+model movies {
+  id           BigInt      @id @default(autoincrement())
+  title        String?     @db.VarChar(255)
+  description  String?     @db.Text
+  duration     Int?
+  release_date DateTime?   @db.Date
+  poster_url   String?     @db.VarChar(500)
+  reviews      reviews[]
+  showtimes    showtimes[]
+}
+
+model payments {
+  id         BigInt           @id @default(autoincrement())
+  booking_id BigInt?
+  amount     Decimal?         @db.Decimal(10, 2)
+  status     payments_status?
+  method     String?          @db.VarChar(50)
+  created_at DateTime         @default(now()) @db.Timestamp(0)
+  bookings   bookings?        @relation(fields: [booking_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "payments_ibfk_1")
+
+  @@index([booking_id], map: "booking_id")
+}
+
+model promotions {
+  id               BigInt    @id @default(autoincrement())
+  code             String?   @unique(map: "code") @db.VarChar(50)
+  discount_percent Int?
+  start_date       DateTime? @db.DateTime(0)
+  end_date         DateTime? @db.DateTime(0)
+}
+
+model reviews {
+  id         BigInt   @id @default(autoincrement())
+  user_id    BigInt?
+  movie_id   BigInt?
+  rating     Int?
+  comment    String?  @db.Text
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  users      users?   @relation(fields: [user_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "reviews_ibfk_1")
+  movies     movies?  @relation(fields: [movie_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "reviews_ibfk_2")
+
+  @@index([movie_id], map: "movie_id")
+  @@index([user_id], map: "user_id")
+}
+
+model rooms {
+  id         BigInt      @id @default(autoincrement())
+  theater_id BigInt?
+  name       String?     @db.VarChar(100)
+  theaters   theaters?   @relation(fields: [theater_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "rooms_ibfk_1")
+  seats      seats[]
+  showtimes  showtimes[]
+
+  @@index([theater_id], map: "theater_id")
+}
+
+model seats {
+  id            BigInt          @id @default(autoincrement())
+  room_id       BigInt?
+  seat_row      String?         @db.Char(1)
+  seat_number   Int?
+  booking_seats booking_seats[]
+  rooms         rooms?          @relation(fields: [room_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "seats_ibfk_1")
+
+  @@index([room_id], map: "room_id")
+}
+
+model showtimes {
+  id            BigInt          @id @default(autoincrement())
+  movie_id      BigInt?
+  room_id       BigInt?
+  start_time    DateTime?       @db.DateTime(0)
+  price         Decimal?        @db.Decimal(10, 2)
+  booking_seats booking_seats[]
+  bookings      bookings[]
+  movies        movies?         @relation(fields: [movie_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "showtimes_ibfk_1")
+  rooms         rooms?          @relation(fields: [room_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "showtimes_ibfk_2")
+
+  @@index([movie_id], map: "movie_id")
+  @@index([room_id], map: "room_id")
+}
+
+model theaters {
+  id       BigInt  @id @default(autoincrement())
+  name     String? @db.VarChar(255)
+  location String? @db.VarChar(255)
+  rooms    rooms[]
+}
+
+model users {
+  id         BigInt      @id @default(autoincrement())
+  name       String?     @db.VarChar(255)
+  email      String?     @unique(map: "email") @db.VarChar(255)
+  password   String?     @db.VarChar(255)
+  role       users_role? @default(USER)
+  created_at DateTime    @default(now()) @db.Timestamp(0)
+  bookings   bookings[]
+  reviews    reviews[]
+}
+
+enum payments_status {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+enum bookings_status {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+enum users_role {
+  USER
+  ADMIN
+}
