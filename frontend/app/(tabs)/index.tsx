@@ -11,14 +11,15 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 
-import { fetchMovies } from "../../services/api";
+import { getMovies } from "../../services/backendApi";
 
 type Movie = {
-  imdbID: string;
-  Poster: string;
-  Title: string;
-  Year: string;
-  Runtime: string;
+  id: string;
+  poster_url: string;
+  title: string;
+  release_date: string;
+  duration: number;
+  description: string;
   status: "sap-chieu" | "dang-chieu" | "suat-chieu-som";
 };
 
@@ -62,19 +63,23 @@ export default function HomeScreen() {
 
   useEffect(() => {
     const loadMovies = async () => {
-      const data = await fetchMovies("batman");
+      try {
+        const data = await getMovies();
 
-      const mappedData: Movie[] = data.map((movie: any, index: number) => ({
-        ...movie,
-        status:
-          index % 3 === 0
-            ? "sap-chieu"
-            : index % 3 === 1
-            ? "dang-chieu"
-            : "suat-chieu-som",
-      }));
+        const mappedData: Movie[] = data.map((movie: any, index: number) => ({
+          ...movie,
+          status:
+            index % 3 === 0
+              ? "sap-chieu"
+              : index % 3 === 1
+              ? "dang-chieu"
+              : "suat-chieu-som",
+        }));
 
-      setMovies(mappedData);
+        setMovies(mappedData);
+      } catch (error) {
+        console.error("Load movies failed:", error);
+      }
     };
 
     loadMovies();
@@ -108,7 +113,7 @@ export default function HomeScreen() {
 
     <FlatList
       data={filteredMovies}
-      keyExtractor={(item) => item.imdbID}
+      keyExtractor={(item) => item.id}
       numColumns={2}
       columnWrapperStyle={styles.row}
       contentContainerStyle={styles.listContent}
@@ -146,25 +151,26 @@ export default function HomeScreen() {
           onPress={() =>
             router.push({
               pathname: "/movie-detail",
-              params: {
-                imdbID: item.imdbID,
-              },
+              params: { id: item.id },
             })
           }
         >
           <Image
             source={{
-              uri:
-                item.Poster !== "N/A"
-                  ? item.Poster
-                  : "https://via.placeholder.com/300x450?text=No+Image",
+              uri: item.poster_url
+                ? item.poster_url
+                : "https://via.placeholder.com/300x450?text=No+Image",
             }}
             style={styles.poster}
           />
           <Text style={styles.movieTitle} numberOfLines={1}>
-            {item.Title}
+            {item.title}
           </Text>
-          <Text style={styles.movieYear}>{item.Year}</Text>
+          <Text style={styles.movieYear}>
+            {item.release_date
+              ? new Date(item.release_date).getFullYear().toString()
+              : ""}
+          </Text>
         </Pressable>
       )}
     />

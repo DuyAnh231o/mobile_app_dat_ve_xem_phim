@@ -2,22 +2,25 @@ import { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Image, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, useLocalSearchParams } from "expo-router";
-import { fetchMovieDetail } from "../services/api";
+import { getMovieById } from "../services/backendApi";
 
 export default function MovieDetailScreen() {
-  const { imdbID } = useLocalSearchParams<{ imdbID: string }>();
+  const { id } = useLocalSearchParams<{ id: string }>();
   const [movie, setMovie] = useState<any>(null);
 
   useEffect(() => {
     const loadMovieDetail = async () => {
-      if (!imdbID) return;
-
-      const data = await fetchMovieDetail(imdbID);
-      setMovie(data);
+      if (!id) return;
+      try {
+        const data = await getMovieById(id);
+        setMovie(data);
+      } catch (error) {
+        console.error("Load movie detail failed:", error);
+      }
     };
 
     loadMovieDetail();
-  }, [imdbID]);
+  }, [id]);
 
     <Stack.Screen
         options={{
@@ -55,17 +58,18 @@ export default function MovieDetailScreen() {
       
       <SafeAreaView style={styles.container}>
         <ScrollView contentContainerStyle={styles.content}>
-          <Image source={{ uri: movie.Poster }} style={styles.poster} />
+          <Image source={{ uri: movie.poster_url }} style={styles.poster} />
 
-          <Text style={styles.title}>{movie.Title}</Text>
-          <Text style={styles.year}>{movie.Year}</Text>
+          <Text style={styles.title}>{movie.title}</Text>
+          <Text style={styles.year}>
+            {movie.release_date
+              ? new Date(movie.release_date).getFullYear().toString()
+              : ""}
+          </Text>
 
-          <Text style={styles.info}>Thời lượng: {movie.Runtime}</Text>
-          <Text style={styles.info}>Thể loại: {movie.Genre}</Text>
-          <Text style={styles.info}>Đạo diễn: {movie.Director}</Text>
-          <Text style={styles.info}>Diễn viên: {movie.Actors}</Text>
+          <Text style={styles.info}>Thời lượng: {movie.duration} phút</Text>
           <Text style={styles.plotTitle}>Giới thiệu:</Text>
-          <Text style={styles.plot}>{movie.Plot}</Text>
+          <Text style={styles.plot}>{movie.description}</Text>
         </ScrollView>
       </SafeAreaView></>
   );

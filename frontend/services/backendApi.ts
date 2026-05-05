@@ -41,6 +41,10 @@ export function getMovies() {
   return request("/movies");
 }
 
+export function getMovieById(id: string | number) {
+  return request(`/movies/${id}`);
+}
+
 export function getShowtimes() {
   return request("/showtimes");
 }
