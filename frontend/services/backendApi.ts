@@ -1,4 +1,4 @@
-const BASE_URL = "http://172.20.10.7:3000";
+const BASE_URL = "http://192.168.100.234:3000";
 
 async function request(path: string, options: RequestInit = {}) {
   const res = await fetch(`${BASE_URL}${path}`, {
@@ -47,6 +47,16 @@ export function getMovieById(id: string | number) {
 
 export function getShowtimes() {
   return request("/showtimes");
+}
+
+export function getShowtimesByMovie(movieId: string | number) {
+  return request("/showtimes").then((all: any[]) =>
+    all.filter((s) => s.movie_id === String(movieId))
+  );
+}
+
+export function getTheaters() {
+  return request("/theaters");
 }
 
 export function getSeatsByShowtime(showtimeId: string | number) {

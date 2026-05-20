@@ -14,7 +14,7 @@ export {
 } from 'expo-router';
 
 export const unstable_settings = {
-  initialRouteName: '(tabs)',
+  initialRouteName: "(tabs)",
 };
 
 SplashScreen.preventAutoHideAsync();
@@ -42,7 +42,9 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   return (
-    // AuthProvider bọc toàn bộ app → mọi màn đều dùng được useAuth()
+    
+    // AuthProvi
+    // der bọc toàn bộ app → mọi màn đều dùng được useAuth()
     <AuthProvider>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack>
@@ -54,6 +56,8 @@ function RootLayoutNav() {
               headerShown: true,
             }}
           />
+          <Stack.Screen name="chon-suat-chieu" options={{ headerShown: true }} />
+          <Stack.Screen name="chon-ghe" options={{ headerShown: true }} />
         </Stack>
       </ThemeProvider>
     </AuthProvider>
