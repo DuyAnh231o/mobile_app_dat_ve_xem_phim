@@ -37,6 +37,13 @@ export function login(email: string, password: string) {
   });
 }
 
+export function register(name: string, email: string, password: string) {
+  return request("/auth/register", {
+    method: "POST",
+    body: JSON.stringify({ name, email, password }),
+  });
+}
+
 export function getMovies() {
   return request("/movies");
 }
@@ -63,6 +70,12 @@ export function getSeatsByShowtime(showtimeId: string | number) {
   return request(`/seats/showtime/${showtimeId}`);
 }
 
+export function getMyBookings(token: string) {
+  return request("/bookings/my", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+ 
 export function createBooking(
   token: string,
   body: {

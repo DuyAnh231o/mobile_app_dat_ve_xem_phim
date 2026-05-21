@@ -58,6 +58,8 @@ function RootLayoutNav() {
           />
           <Stack.Screen name="chon-suat-chieu" options={{ headerShown: true }} />
           <Stack.Screen name="chon-ghe" options={{ headerShown: true }} />
+          <Stack.Screen name="ve-da-dat" options={{ headerShown: true }} />
+          <Stack.Screen name="register" options={{ headerShown: true }} />
         </Stack>
       </ThemeProvider>
     </AuthProvider>

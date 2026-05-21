@@ -108,7 +108,7 @@ export default function LoginScreen() {
             <View style={styles.orLine} />
           </View>
 
-          <Pressable>
+          <Pressable onPress={() => router.push("/register")}>
             <Text style={styles.registerText}>Đăng kí tài khoản HDA Cinemas</Text>
           </Pressable>
         </View>

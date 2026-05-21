@@ -1,13 +1,13 @@
 import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { router } from "expo-router";
-import { useAuth } from "@/context/AuthContext";   // ← thêm
+import { useAuth } from "@/context/AuthContext";
 
 export default function MoreScreen() {
-  const { user, logout } = useAuth();              // ← thay toàn bộ AsyncStorage
+  const { user, logout } = useAuth();
 
   const handleLogout = async () => {
-    await logout();   // xóa state + AsyncStorage ngay lập tức
+    await logout();
     Alert.alert("Đã đăng xuất", "Bạn đã đăng xuất khỏi tài khoản.");
     router.replace("/(tabs)");
   };
@@ -16,11 +16,11 @@ export default function MoreScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>Khác</Text>
 
+      {/* Card thông tin user */}
       <View style={styles.card}>
         <View style={styles.avatar}>
           <FontAwesome name="user" size={28} color="#E2B200" />
         </View>
-
         <View style={styles.userInfo}>
           <Text style={styles.helloText}>
             {user ? `Chào ${user.name}` : "Bạn chưa đăng nhập"}
@@ -33,6 +33,21 @@ export default function MoreScreen() {
         </View>
       </View>
 
+      {/* Menu items */}
+      <View style={styles.menuBlock}>
+        <Pressable
+          style={styles.menuItem}
+          onPress={() => router.push("/ve-da-dat")}
+        >
+          <View style={styles.menuIcon}>
+            <FontAwesome name="ticket" size={18} color="#E2B200" />
+          </View>
+          <Text style={styles.menuText}>Vé đã đặt</Text>
+          <FontAwesome name="chevron-right" size={14} color="#555" />
+        </Pressable>
+      </View>
+
+      {/* Đăng nhập / Đăng xuất */}
       {user ? (
         <Pressable style={styles.logoutButton} onPress={handleLogout}>
           <FontAwesome name="sign-out" size={20} color="#FFFFFF" />
@@ -64,6 +79,22 @@ const styles = StyleSheet.create({
   userInfo: { flex: 1 },
   helloText: { fontSize: 18, fontWeight: "800", color: "#FFFFFF" },
   roleText: { marginTop: 4, fontSize: 14, color: "#A0A0A0" },
+
+  menuBlock: {
+    marginTop: 20, backgroundColor: "#171510",
+    borderRadius: 16, borderWidth: 1, borderColor: "#2B271C",
+    overflow: "hidden",
+  },
+  menuItem: {
+    flexDirection: "row", alignItems: "center",
+    paddingHorizontal: 16, paddingVertical: 16, gap: 14,
+  },
+  menuIcon: {
+    width: 36, height: 36, borderRadius: 10,
+    backgroundColor: "#2B271C", alignItems: "center", justifyContent: "center",
+  },
+  menuText: { flex: 1, fontSize: 16, fontWeight: "600", color: "#fff" },
+
   logoutButton: {
     marginTop: 20, height: 54, borderRadius: 14,
     backgroundColor: "#B3261E", flexDirection: "row",
